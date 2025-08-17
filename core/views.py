@@ -9,4 +9,4 @@ def home(request):
     'services': services,
     'doctors': doctors,
     }
-    return render(request, 'index.html', context)
+    return render(request, 'core\index.html', context)
