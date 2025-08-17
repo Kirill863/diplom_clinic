@@ -1,0 +1,16 @@
+<!-- core/templates/core/appointment_success.html -->
+{% extends 'core\base.html' %}
+
+{% block content %}
+<section id="appointment-success" class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h2 class="mb-4">Спасибо за вашу заявку!</h2>
+                <p class="lead">Мы свяжемся с вами в ближайшее время для подтверждения записи.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">Вернуться на главную</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

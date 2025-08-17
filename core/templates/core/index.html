@@ -95,27 +95,23 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <h2 class="text-center mb-4">Записаться на прием</h2>
-                <form>
+                <form method="post" action="{% url 'appointment' %}">
+                    {% csrf_token %}
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <input type="text" class="form-control" placeholder="Ваше имя" required>
+                            {{ form.name }}
                         </div>
                         <div class="col-md-6">
-                            <input type="tel" class="form-control" placeholder="Телефон" required>
+                            {{ form.phone }}
                         </div>
                         <div class="col-md-6">
-                            <select class="form-select">
-                                <option selected>Выберите специалиста</option>
-                                <option>Кардиолог</option>
-                                <option>Невролог</option>
-                                <option>Ортопед</option>
-                            </select>
+                            {{ form.doctor }}
                         </div>
                         <div class="col-md-6">
-                            <input type="date" class="form-control">
+                            {{ form.date }}
                         </div>
                         <div class="col-12">
-                            <textarea class="form-control" rows="3" placeholder="Сообщение (необязательно)"></textarea>
+                            {{ form.message }}
                         </div>
                         <div class="col-12 text-center">
                             <button type="submit" class="btn btn-light btn-lg">Отправить заявку</button>

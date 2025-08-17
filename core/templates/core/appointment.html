@@ -1,0 +1,47 @@
+<!-- core/templates/core/appointment.html -->
+{% extends 'core\base.html' %}
+
+{% block content %}
+<!-- Appointment Section -->
+<section id="appointment" class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h2 class="text-center mb-4">Записаться на прием</h2>
+                <form method="post" action="{% url 'appointment' %}">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-warning">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                                <div class="text-warning">{{ form.phone.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.doctor }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.date }}
+                            {% if form.date.errors %}
+                                <div class="text-warning">{{ form.date.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            {{ form.message }}
+                        </div>
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-light btn-lg">Отправить заявку</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
