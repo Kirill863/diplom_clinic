@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Service, Doctor  # если используете модели
+from core.models import Service, Doctor  # если используете модели
 
 def home(request):
     services = Service.objects.all()

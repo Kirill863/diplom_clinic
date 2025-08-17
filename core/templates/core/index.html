@@ -32,27 +32,14 @@
     <div class="container">
         <h2 class="text-center mb-5">Наши услуги</h2>
         <div class="row g-4">
+            {% for service in services %}
             <div class="col-md-4">
                 <div class="card h-100 text-center p-4">
-                    <i class="fas fa-heartbeat service-icon"></i>
-                    <h3>Кардиология</h3>
-                    <p>Диагностика и лечение заболеваний сердечно-сосудистой системы.</p>
+                    <h3>{{ service.title }}</h3>
+                    <p>{{ service.description }}</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 text-center p-4">
-                    <i class="fas fa-brain service-icon"></i>
-                    <h3>Неврология</h3>
-                    <p>Лечение заболеваний нервной системы и реабилитация после инсультов.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 text-center p-4">
-                    <i class="fas fa-bone service-icon"></i>
-                    <h3>Ортопедия</h3>
-                    <p>Лечение заболеваний опорно-двигательного аппарата и травм.</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </section>
