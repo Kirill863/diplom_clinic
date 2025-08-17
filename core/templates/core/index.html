@@ -58,41 +58,47 @@
 </section>
 
 <!-- Doctors Section -->
+<!-- Doctors Section -->
 <section id="doctors" class="py-5">
     <div class="container">
         <h2 class="text-center mb-5">Наши врачи</h2>
+        {% if doctors %}
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://via.placeholder.com/300x300" class="card-img-top" alt="Доктор">
+            {% for doctor in doctors %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
                     <div class="card-body text-center">
-                        <h5 class="card-title">Иванов Петр Сергеевич</h5>
-                        <p class="text-muted">Кардиолог</p>
-                        <p class="card-text">Стаж работы: 15 лет</p>
+                        <h5 class="card-title">{{ doctor.name }}</h5>
+                        <p class="text-muted">{{ doctor.specialization }}</p>
+                        
+                        <!-- Проверка наличия стажа -->
+                        {% if doctor.experience > 0 %}
+                        <p class="card-text">Стаж работы: {{ doctor.experience }} 
+                            {% if doctor.experience == 1 %}год
+                            {% elif doctor.experience >= 2 and doctor.experience <= 4 %}года
+                            {% else %}лет
+                            {% endif %}
+                        </p>
+                        {% else %}
+                        <p class="card-text">Начинающий специалист</p>
+                        {% endif %}
+                        
+                        <!-- Описание врача -->
+                        {% if doctor.description %}
+                        <div class="card-text mt-3">
+                            <p>{{ doctor.description|truncatechars:100 }}</p>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://via.placeholder.com/300x300" class="card-img-top" alt="Доктор">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Смирнова Ольга Владимировна</h5>
-                        <p class="text-muted">Невролог</p>
-                        <p class="card-text">Стаж работы: 12 лет</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://via.placeholder.com/300x300" class="card-img-top" alt="Доктор">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Кузнецов Андрей Михайлович</h5>
-                        <p class="text-muted">Ортопед</p>
-                        <p class="card-text">Стаж работы: 10 лет</p>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
+        {% else %}
+        <div class="alert alert-info text-center">
+            Врачи временно отсутствуют. Пожалуйста, зайдите позже.
+        </div>
+        {% endif %}
     </div>
 </section>
 
