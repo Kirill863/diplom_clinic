@@ -1,3 +1,12 @@
 from django.shortcuts import render
+from .models import Service, Doctor  # если используете модели
 
-# Create your views here.
+def home(request):
+    services = Service.objects.all()
+    doctors = Doctor.objects.all()
+    
+    context = {
+    'services': services,
+    'doctors': doctors,
+    }
+    return render(request, 'index.html', context)
