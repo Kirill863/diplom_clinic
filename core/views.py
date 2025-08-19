@@ -2,6 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Service, Doctor, Testimonial, Appointment
 from .forms import AppointmentForm, TestimonialForm
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
+
+
 
 def home(request):
     """Главная страница с услугами, врачами и отзывами"""
@@ -77,3 +81,27 @@ def all_testimonials(request):
         'testimonials': testimonials,
     }
     return render(request, 'core/all_testimonials.html', context)
+
+
+
+def staff_login(request):
+    """Страница входа для персонала"""
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            
+            if user is not None and user.is_staff:
+                login(request, user)
+                messages.success(request, f'Добро пожаловать, {username}!')
+                return redirect('admin:index')  # Перенаправляем в админку
+            else:
+                messages.error(request, 'Неверные учетные данные или недостаточно прав')
+        else:
+            messages.error(request, 'Пожалуйста, проверьте введенные данные')
+    else:
+        form = AuthenticationForm()
+    
+    return render(request, 'core/staff_login.html', {'form': form})
