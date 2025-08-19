@@ -1,0 +1,103 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Оставить отзыв - Медицинская Клиника{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Оставить отзыв</h3>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">
+                                    Ваше имя *
+                                </label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ваша оценка *</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="rating" id="rating_good" value="good" checked>
+                                        <label class="form-check-label text-success" for="rating_good">
+                                            <i class="fas fa-smile me-1"></i> Хорошо
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="rating" id="rating_bad" value="bad">
+                                        <label class="form-check-label text-danger" for="rating_bad">
+                                            <i class="fas fa-frown me-1"></i> Плохо
+                                        </label>
+                                    </div>
+                                </div>
+                                {% if form.rating.errors %}
+                                    <div class="text-danger small mt-1">{{ form.rating.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div> <!-- Закрываем div.row -->
+
+                        <div class="mb-3">
+                            <label for="{{ form.doctor.id_for_label }}" class="form-label">
+                                Врач (если помните)
+                            </label>
+                            {{ form.doctor }}
+                            {% if form.doctor.errors %}
+                                <div class="text-danger small mt-1">{{ form.doctor.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.message.id_for_label }}" class="form-label">
+                                Ваш отзыв *
+                            </label>
+                            {{ form.message }}
+                            {% if form.message.errors %}
+                                <div class="text-danger small mt-1">{{ form.message.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Поделитесь вашими впечатлениями о качестве обслуживания</div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Отправить отзыв
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Вернуться на главную
+                </a>
+                <a href="{% url 'all_testimonials' %}" class="btn btn-outline-primary ms-2">
+                    Посмотреть все отзывы
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

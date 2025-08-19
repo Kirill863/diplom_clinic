@@ -1,4 +1,6 @@
 from django.db import models
+from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Service(models.Model):
     title = models.CharField(max_length=200)
@@ -42,3 +44,37 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f'{self.name} - {self.doctor} ({self.date})'
+
+
+
+class Testimonial(models.Model):
+    RATING_CHOICES = [
+        ('good', 'Хорошо'),
+        ('bad', 'Плохо'),
+    ]
+    
+    name = models.CharField(max_length=100, verbose_name="Имя пациента")
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, verbose_name='Врач')
+    message = models.TextField(verbose_name="Текст отзыва")
+    rating = models.CharField(
+        max_length=10,
+        choices=RATING_CHOICES,
+        default='good',
+        verbose_name="Оценка"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    is_approved = models.BooleanField(default=False, verbose_name="Одобрено")
+    
+    class Meta:
+        verbose_name = "Отзыв"
+        verbose_name_plural = "Отзывы"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Отзыв от {self.name}"
+    
+    def get_rating_display_class(self):
+        return 'success' if self.rating == 'good' else 'danger'
+    
+    def get_rating_icon(self):
+        return 'fa-smile' if self.rating == 'good' else 'fa-frown'

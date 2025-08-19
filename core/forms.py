@@ -2,6 +2,7 @@ import datetime
 from django import forms
 from .models import Doctor
 from django.core.validators import RegexValidator
+from .models import Testimonial
 
 class AppointmentForm(forms.Form):
     name = forms.CharField(
@@ -54,3 +55,33 @@ class AppointmentForm(forms.Form):
             'placeholder': 'Сообщение (необязательно)'
         })
     )
+
+
+
+
+class TestimonialForm(forms.ModelForm):
+    class Meta:
+        model = Testimonial
+        fields = ['name', 'doctor', 'message', 'rating']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ваше имя *'
+            }),
+            'doctor': forms.Select(attrs={
+                'class': 'form-select',
+                'placeholder': 'Выберите врача'
+            }),
+            'message': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Поделитесь вашими впечатлениями о клинике *'
+            }),
+            'rating': forms.RadioSelect(attrs={
+                'class': 'form-check-input'
+            })
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['rating'].empty_label = None

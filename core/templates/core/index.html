@@ -44,7 +44,6 @@
     </div>
 </section>
 
-
 <!-- Doctors Section -->
 <section id="doctors" class="py-5">
     <div class="container">
@@ -124,52 +123,68 @@
 </section>
 
 <!-- Testimonials Section -->
-<section class="py-5 bg-light">
+<section class="py-5 bg-light" id="testimonials">
     <div class="container">
-        <h2 class="text-center mb-5">Отзывы пациентов</h2>
+        <div class="row align-items-center mb-5">
+            <div class="col-md-8">
+                <h2 class="mb-0">Отзывы наших пациентов</h2>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{% url 'all_testimonials' %}" class="btn btn-outline-primary me-2">
+                    Все отзывы
+                </a>
+                <a href="{% url 'add_testimonial' %}" class="btn btn-primary">
+                    Оставить отзыв
+                </a>
+            </div>
+        </div>
+        
         <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <p class="card-text">"Отличная клиника с внимательными врачами. Лечился у кардиолога Иванова П.С., очень доволен результатом."</p>
-                        <div class="d-flex align-items-center">
-                            <img src="https://via.placeholder.com/50" class="rounded-circle me-3" alt="Пациент">
-                            <div>
-                                <h6 class="mb-0">Сергей Николаев</h6>
-                                <small class="text-muted">Пациент</small>
+            {% if testimonials %}
+                {% for testimonial in testimonials %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 testimonial-card">
+                        <div class="card-body d-flex flex-column">
+                            <!-- Обновленный блок с рейтингом -->
+                            <div class="mb-2">
+                                <span class="badge bg-{{ testimonial.get_rating_display_class }}">
+                                    <i class="fas {{ testimonial.get_rating_icon }} me-1"></i>
+                                    {{ testimonial.get_rating_display }}
+                                </span>
+                            </div>
+                            
+                            <p class="card-text flex-grow-1">"{{ testimonial.message }}"</p>
+                            <div class="mt-auto pt-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-placeholder rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" 
+                                        style="width: 50px; height: 50px; font-size: 18px;">
+                                        {{ testimonial.name|first|upper }}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ testimonial.name }}</h6>
+                                        {% if testimonial.doctor %}
+                                            <small class="text-muted">Врач: {{ testimonial.doctor }}</small><br>
+                                        {% endif %}
+                                        <small class="text-muted">{{ testimonial.created_at|date:"d.m.Y" }}</small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <p class="card-text">"Очень благодарна неврологу Смирновой О.В. за профессиональный подход и эффективное лечение."</p>
-                        <div class="d-flex align-items-center">
-                            <img src="https://via.placeholder.com/50" class="rounded-circle me-3" alt="Пациент">
-                            <div>
-                                <h6 class="mb-0">Мария Петрова</h6>
-                                <small class="text-muted">Пациент</small>
-                            </div>
-                        </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <div class="text-muted">
+                        <i class="fas fa-comments fa-3x mb-3"></i>
+                        <h4>Пока нет отзывов</h4>
+                        <p>Будьте первым, кто оставит отзыв о нашей клинике!</p>
+                        <a href="{% url 'add_testimonial' %}" class="btn btn-primary">
+                            Оставить отзыв
+                        </a>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <p class="card-text">"После травмы колена обратился к ортопеду Кузнецову А.М. Результат превзошел все ожидания!"</p>
-                        <div class="d-flex align-items-center">
-                            <img src="https://via.placeholder.com/50" class="rounded-circle me-3" alt="Пациент">
-                            <div>
-                                <h6 class="mb-0">Алексей Воробьев</h6>
-                                <small class="text-muted">Пациент</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 </section>
