@@ -1,21 +1,30 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Вход для персонала - Клиника "Здоровье"{% endblock %}
+{% block title %}Вход в систему - Клиника "Здоровье"{% endblock %}
 
 {% block content %}
 <div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 text-primary">
+            <i class="fas fa-hospital me-2"></i>
+            Клиника "Здоровье"
+        </h1>
+        <p class="lead">Выберите тип входа в систему</p>
+    </div>
+    
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-            <div class="card shadow">
+        <!-- Форма входа для персонала -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow h-100">
                 <div class="card-header bg-primary text-white text-center">
-                    <h3 class="mb-0">
-                        <i class="fas fa-user-md me-2"></i>
-                        Вход для персонала
-                    </h3>
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-tie me-2"></i>
+                        Адмиистратор
+                    </h4>
                 </div>
                 <div class="card-body p-4">
-                    {% if messages %}
+                    {% if messages and form_type == 'staff' %}
                         {% for message in messages %}
                         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                             {{ message }}
@@ -26,44 +35,159 @@
 
                     <form method="post">
                         {% csrf_token %}
+                        <input type="hidden" name="form_type" value="staff">
                         
                         <div class="mb-3">
-                            <label for="username" class="form-label">
+                            <label for="staff_username" class="form-label">
                                 <i class="fas fa-user me-1"></i>Логин
                             </label>
-                            <input type="text" class="form-control" id="username" name="username" 
-                                   placeholder="Введите ваш логин" required>
+                            <input type="text" class="form-control" id="staff_username" name="username" 
+                                    placeholder="Введите ваш логин" required>
                         </div>
 
                         <div class="mb-4">
-                            <label for="password" class="form-label">
+                            <label for="staff_password" class="form-label">
                                 <i class="fas fa-lock me-1"></i>Пароль
                             </label>
-                            <input type="password" class="form-control" id="password" name="password" 
-                                   placeholder="Введите ваш пароль" required>
+                            <input type="password" class="form-control" id="staff_password" name="password" 
+                                    placeholder="Введите ваш пароль" required>
                         </div>
 
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-sign-in-alt me-2"></i>
-                                Войти
+                                Войти как адмиистратор
                             </button>
                         </div>
                     </form>
-
-                    <div class="text-center mt-4">
-                        <p class="text-muted small">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Доступ только для сотрудников клиники
-                        </p>
-                        <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-arrow-left me-1"></i>
-                            Вернуться на главную
-                        </a>
-                    </div>
+                </div>
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">Доступ для административного персонала</small>
                 </div>
             </div>
         </div>
+        
+        <!-- Форма входа для врачей -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-md me-2"></i>
+                        Врачи
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages and form_type == 'doctor' %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="doctor">
+                        
+                        <div class="mb-3">
+                            <label for="doctor_username" class="form-label">
+                                <i class="fas fa-user me-1"></i>Логин врача
+                            </label>
+                            <input type="text" class="form-control" id="doctor_username" name="username" 
+                                    placeholder="Введите ваш ID или логин" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="doctor_password" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Пароль
+                            </label>
+                            <input type="password" class="form-control" id="doctor_password" name="password" 
+                                    placeholder="Введите ваш пароль" required>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-stethoscope me-2"></i>
+                                Войти как врач
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">Доступ к медицинским записям и расписанию</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Форма входа для пациентов -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-info text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-injured me-2"></i>
+                        Пациенты
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages and form_type == 'patient' %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="patient">
+                        
+                        <div class="mb-3">
+                            <label for="patient_email" class="form-label">
+                                <i class="fas fa-envelope me-1"></i>Email
+                            </label>
+                            <input type="email" class="form-control" id="patient_email" name="email" 
+                                    placeholder="Введите ваш email" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="patient_password" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Пароль
+                            </label>
+                            <input type="password" class="form-control" id="patient_password" name="password" 
+                                    placeholder="Введите ваш пароль" required>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                            <label class="form-check-label" for="remember_me">Запомнить меня</label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-info text-white">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Войти как пациент
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <a href="#" class="small">Забыли пароль?</a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">Доступ к записям и историям болезней</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Вернуться на главную
+        </a>
     </div>
 </div>
 {% endblock %}
