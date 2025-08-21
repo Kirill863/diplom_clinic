@@ -3,6 +3,20 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.hashers import make_password, check_password
 
+
+class Patient(models.Model):
+    name = models.CharField(max_length=100, verbose_name='Имя пациента')
+    phone = models.CharField(max_length=20, verbose_name='Телефон')
+    birth_date = models.DateField(null=True, blank=True, verbose_name='Дата рождения')
+    notes = models.TextField(blank=True, verbose_name='Заметки')
+    
+    class Meta:
+        verbose_name = 'Пациент'
+        verbose_name_plural = 'Пациенты'
+    
+    def __str__(self):
+        return self.name
+
 class Service(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
@@ -45,6 +59,7 @@ class Appointment(models.Model):
     date = models.DateField(verbose_name='Дата приема')
     message = models.TextField(blank=True, verbose_name='Сообщение')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания записи')
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, verbose_name='Пациент', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Запись на прием'
@@ -87,3 +102,4 @@ class Testimonial(models.Model):
     
     def get_rating_icon(self):
         return 'fa-smile' if self.rating == 'good' else 'fa-frown'
+    

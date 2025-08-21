@@ -155,3 +155,21 @@ def doctor_logout(request):
     if 'doctor_name' in request.session:
         del request.session['doctor_name']
     return redirect('core/staff_login')
+
+
+
+@login_required
+def patient_card(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    
+    patient_history = Appointment.objects.filter(
+        phone=appointment.phone
+    ).order_by('-date')
+    
+    context = {
+        'appointment': appointment,
+        'patient_history': patient_history,
+        'doctor': appointment.doctor
+    }
+    
+    return render(request, 'core/patient_card.html', context)

@@ -29,6 +29,7 @@
                                     <th>Дата приема</th>
                                     <th>Дата записи</th>
                                     <th>Сообщение</th>
+                                    <th>Действия</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -39,6 +40,13 @@
                                     <td>{{ appointment.date }}</td>
                                     <td>{{ appointment.created_at|date:"d.m.Y H:i" }}</td>
                                     <td>{{ appointment.message|default:"-" }}</td>
+                                    <td>
+                                        <a href="{% url 'patient_card' appointment.id %}" 
+                                            class="btn btn-sm btn-primary" 
+                                            title="Открыть карточку пациента">
+                                            <i class="fas fa-user-injured"></i>
+                                        </a>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

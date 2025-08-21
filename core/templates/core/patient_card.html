@@ -1,0 +1,132 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Карточка пациента: {{ appointment.name }}</h2>
+                <div>
+                    <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </a>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Основная информация -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">Основная информация</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Имя:</strong></div>
+                                <div class="col-8">{{ appointment.name }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Телефон:</strong></div>
+                                <div class="col-8">{{ appointment.phone }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Дата приема:</strong></div>
+                                <div class="col-8">{{ appointment.date }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4"><strong>Врач:</strong></div>
+                                <div class="col-8">{{ appointment.doctor.name }}</div>
+                            </div>
+                            {% if appointment.message %}
+                            <div class="row">
+                                <div class="col-4"><strong>Сообщение:</strong></div>
+                                <div class="col-8">{{ appointment.message }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Дополнительные действия -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">Действия</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="tel:{{ appointment.phone }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-phone"></i> Позвонить пациенту
+                                </a>
+                                <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#editModal">
+                                    <i class="fas fa-edit"></i> Редактировать запись
+                                </button>
+                                <button class="btn btn-outline-warning">
+                                    <i class="fas fa-calendar-plus"></i> Создать новую запись
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- История записей -->
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">История записей пациента</h5>
+                </div>
+                <div class="card-body">
+                    {% if patient_history %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Дата приема</th>
+                                    <th>Врач</th>
+                                    <th>Дата записи</th>
+                                    <th>Сообщение</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in patient_history %}
+                                <tr>
+                                    <td>{{ record.date }}</td>
+                                    <td>{{ record.doctor.name }}</td>
+                                    <td>{{ record.created_at|date:"d.m.Y H:i" }}</td>
+                                    <td>{{ record.message|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Нет истории записей.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для редактирования -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактировать запись</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Здесь будет форма редактирования записи...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
