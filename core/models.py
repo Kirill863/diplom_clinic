@@ -1,6 +1,7 @@
 from django.db import models
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.hashers import make_password, check_password
 
 class Service(models.Model):
     title = models.CharField(max_length=200)
@@ -20,7 +21,9 @@ class Doctor(models.Model):
     specialization = models.CharField(max_length=100, verbose_name='Специализация')
     experience = models.IntegerField(verbose_name='Стаж работы (лет)', default=0, blank=True)
     description = models.TextField(verbose_name='Описание', blank=True)
-    
+    username = models.CharField(max_length=50, unique=True, verbose_name='Логин', blank=True, null=True)
+    password = models.CharField(max_length=128, verbose_name='Пароль', blank=True, null=True)
+
     class Meta:
         app_label = 'core'
         verbose_name = 'Врач'
@@ -28,6 +31,12 @@ class Doctor(models.Model):
     
     def __str__(self):
         return self.name
+    
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+    
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)
     
 class Appointment(models.Model):
     name = models.CharField(max_length=100, verbose_name='Имя пациента')

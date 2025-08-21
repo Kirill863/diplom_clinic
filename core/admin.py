@@ -1,12 +1,25 @@
 from django.contrib import admin
 from .models import Doctor, Service, Appointment, Testimonial
+from django import forms
 
+class DoctorAdminForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput(), required=False, label="Пароль")
+    
+    class Meta:
+        model = Doctor
+        fields = '__all__'
 
 @admin.register(Doctor)
 class DoctorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'specialization', 'experience')
-    search_fields = ('name', 'specialization')
+    form = DoctorAdminForm
+    list_display = ('name', 'specialization', 'experience', 'username')
+    search_fields = ('name', 'specialization', 'username')
     list_filter = ('specialization',)
+    
+    def save_model(self, request, obj, form, change):
+        if form.cleaned_data.get('password'):
+            obj.set_password(form.cleaned_data['password'])
+        super().save_model(request, obj, form, change)
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):

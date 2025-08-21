@@ -4,7 +4,10 @@ from .models import Service, Doctor, Testimonial, Appointment
 from .forms import AppointmentForm, TestimonialForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
-
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import Doctor, Appointment
 
 
 def home(request):
@@ -105,3 +108,50 @@ def staff_login(request):
         form = AuthenticationForm()
     
     return render(request, 'core/staff_login.html', {'form': form})
+
+
+def doctor_login(request):
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        
+        if form_type == 'doctor':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            
+            try:
+                doctor = Doctor.objects.get(username=username)
+                if doctor.check_password(password):
+                    request.session['doctor_id'] = doctor.id
+                    request.session['doctor_name'] = doctor.name
+                    return redirect('doctor_dashboard')
+                else:
+                    messages.error(request, 'Неверный пароль')
+            except Doctor.DoesNotExist:
+                messages.error(request, 'Врач с таким логином не найден')
+            
+            # Сохраняем в сессии тип формы для отображения сообщений
+            request.session['form_type'] = 'doctor'
+            return redirect('core/staff_login')
+    
+    return redirect('core/staff_login')
+
+@login_required
+def doctor_dashboard(request):
+    doctor_id = request.session.get('doctor_id')
+    if not doctor_id:
+        return redirect('doctor_login')
+    
+    doctor = get_object_or_404(Doctor, id=doctor_id)
+    appointments = Appointment.objects.filter(doctor=doctor).order_by('-created_at')
+    
+    return render(request, 'core/doctor_dashboard.html', {
+        'doctor': doctor,
+        'appointments': appointments
+    })
+
+def doctor_logout(request):
+    if 'doctor_id' in request.session:
+        del request.session['doctor_id']
+    if 'doctor_name' in request.session:
+        del request.session['doctor_name']
+    return redirect('core/staff_login')

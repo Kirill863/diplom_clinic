@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Панель врача: {{ doctor.name }}</h2>
+                <a href="{% url 'home' %}" class="btn btn-outline-danger">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </a>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Записи пациентов
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Имя пациента</th>
+                                    <th>Телефон</th>
+                                    <th>Дата приема</th>
+                                    <th>Дата записи</th>
+                                    <th>Сообщение</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in appointments %}
+                                <tr>
+                                    <td>{{ appointment.name }}</td>
+                                    <td>{{ appointment.phone }}</td>
+                                    <td>{{ appointment.date }}</td>
+                                    <td>{{ appointment.created_at|date:"d.m.Y H:i" }}</td>
+                                    <td>{{ appointment.message|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Нет записей пациентов.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
