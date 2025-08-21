@@ -191,7 +191,7 @@ def create_medical_record(request, appointment_id):
             form.save_m2m()
             
             # Переадресация на список медицинских записей
-            return redirect('core/medical_records_list', appointment_id=appointment.id)
+            return redirect('patient_card', appointment_id=appointment.id)
     else:
         form = MedicalRecordForm()
     

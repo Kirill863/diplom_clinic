@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Doctor, Service, Appointment, Testimonial
+from .models import Doctor, Service, Appointment, Testimonial, MedicalRecord  # Добавили MedicalRecord
 from django import forms
 
 class DoctorAdminForm(forms.ModelForm):
@@ -34,8 +34,6 @@ class AppointmentAdmin(admin.ModelAdmin):
     search_fields = ('name', 'phone')
     date_hierarchy = 'date'
 
-
-
 @admin.register(Testimonial)
 class TestimonialAdmin(admin.ModelAdmin):
     list_display = ['name', 'doctor', 'rating', 'created_at', 'is_approved']
@@ -56,5 +54,45 @@ class TestimonialAdmin(admin.ModelAdmin):
         }),
     )
 
+# ДОБАВЛЯЕМ РЕГИСТРАЦИЮ МОДЕЛИ MedicalRecord
+@admin.register(MedicalRecord)
+class MedicalRecordAdmin(admin.ModelAdmin):
+    list_display = ['appointment_info', 'doctor_name', 'created_at_short', 'services_list']
+    list_filter = ['created_at', 'doctor', 'services']
+    search_fields = [
+        'appointment__name', 
+        'appointment__phone',
+        'diagnosis', 
+        'treatment',
+        'doctor__name'
+    ]
+    readonly_fields = ['created_at']
+    date_hierarchy = 'created_at'
+    filter_horizontal = ['services']
+    
+    def appointment_info(self, obj):
+        return f"{obj.appointment.name} ({obj.appointment.phone})"
+    appointment_info.short_description = 'Пациент'
+    
+    def doctor_name(self, obj):
+        return obj.doctor.name
+    doctor_name.short_description = 'Врач'
+    
+    def created_at_short(self, obj):
+        return obj.created_at.strftime("%d.%m.%Y %H:%M")
+    created_at_short.short_description = 'Создано'
+    
+    def services_list(self, obj):
+        return ", ".join([service.title for service in obj.services.all()])
+    services_list.short_description = 'Услуги'
+    
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('appointment', 'doctor', 'created_at')
+        }),
+        ('Медицинская информация', {
+            'fields': ('services', 'diagnosis', 'treatment', 'recommendations')
+        }),
+    )
 
 admin.site.site_header = "Администрирование клиники"
