@@ -1,8 +1,8 @@
 import datetime
 from django import forms
-from .models import Doctor
+from .models import Doctor, MedicalRecord, Testimonial
 from django.core.validators import RegexValidator
-from .models import Testimonial
+
 
 class AppointmentForm(forms.Form):
     name = forms.CharField(
@@ -85,3 +85,16 @@ class TestimonialForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['rating'].empty_label = None
+
+
+
+class MedicalRecordForm(forms.ModelForm):
+    class Meta:
+        model = MedicalRecord
+        fields = ['services', 'diagnosis', 'treatment', 'recommendations']
+        widgets = {
+            'services': forms.CheckboxSelectMultiple(),
+            'diagnosis': forms.Textarea(attrs={'rows': 3}),
+            'treatment': forms.Textarea(attrs={'rows': 3}),
+            'recommendations': forms.Textarea(attrs={'rows': 3}),
+        }

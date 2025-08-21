@@ -55,14 +55,20 @@
                         </div>
                         <div class="card-body">
                             <div class="d-grid gap-2">
-                                <a href="tel:{{ appointment.phone }}" class="btn btn-outline-primary">
-                                    <i class="fas fa-phone"></i> Позвонить пациенту
-                                </a>
-                                <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#editModal">
-                                    <i class="fas fa-edit"></i> Редактировать запись
-                                </button>
-                                <button class="btn btn-outline-warning">
-                                    <i class="fas fa-calendar-plus"></i> Создать новую запись
+                                    <a href="tel:{{ appointment.phone }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-phone"></i> Позвонить пациенту
+                                    </a>
+                                    <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#editModal">
+                                        <i class="fas fa-edit"></i> Редактировать запись
+                                    </button>
+                                    <a href="{% url 'create_medical_record' appointment.id %}" class="btn btn-outline-warning">
+                                        <i class="fas fa-calendar-plus"></i> Создать новую запись
+                                    </a>
+                                    <!-- НОВАЯ КНОПКА для просмотра всех записей -->
+                                    <a href="{% url 'medical_records_list' appointment.id %}" class="btn btn-outline-info">
+                                        <i class="fas fa-list"></i> Просмотреть все записи
+                                    </a>
+                                </div>
                                 </button>
                             </div>
                         </div>

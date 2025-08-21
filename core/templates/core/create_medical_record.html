@@ -1,0 +1,57 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Создание медицинской записи для {{ appointment.name }}</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5>Услуги</h5>
+            </div>
+            <div class="card-body">
+                {{ form.services }}
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5>Диагноз</h5>
+            </div>
+            <div class="card-body">
+                {{ form.diagnosis }}
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5>Лечение</h5>
+            </div>
+            <div class="card-body">
+                {{ form.treatment }}
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-white">
+                <h5>Рекомендации</h5>
+            </div>
+            <div class="card-body">
+                {{ form.recommendations }}
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-save"></i> Сохранить медицинскую запись
+            </button>
+            <!-- ИСПРАВЛЕННАЯ ССЫЛКА: -->
+            <a href="{% url 'patient_card' appointment.id %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад к карточке пациента
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

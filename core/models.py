@@ -103,3 +103,20 @@ class Testimonial(models.Model):
     def get_rating_icon(self):
         return 'fa-smile' if self.rating == 'good' else 'fa-frown'
     
+
+class MedicalRecord(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, verbose_name='Запись на прием')
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, verbose_name='Врач')
+    services = models.ManyToManyField(Service, verbose_name='Услуги')
+    diagnosis = models.TextField(verbose_name='Диагноз')
+    treatment = models.TextField(verbose_name='Лечение')
+    recommendations = models.TextField(blank=True, verbose_name='Рекомендации')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания записи')
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, verbose_name='Пациент', null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Медицинская запись'
+        verbose_name_plural = 'Медицинские записи'
+    
+    def __str__(self):
+        return f"Запись от {self.created_at.strftime('%d.%m.%Y')} - {self.appointment.name}"

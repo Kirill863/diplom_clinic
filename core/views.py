@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Service, Doctor, Testimonial, Appointment
+from .models import Service, Doctor, Testimonial, Appointment, MedicalRecord
 from .forms import AppointmentForm, TestimonialForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Doctor, Appointment
-
+from .forms import MedicalRecordForm
 
 def home(request):
     """Главная страница с услугами, врачами и отзывами"""
@@ -161,15 +161,53 @@ def doctor_logout(request):
 @login_required
 def patient_card(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
-    
+    medical_records = MedicalRecord.objects.filter(appointment=appointment)
+        
     patient_history = Appointment.objects.filter(
         phone=appointment.phone
     ).order_by('-date')
     
     context = {
         'appointment': appointment,
+        'medical_records': medical_records,  # Добавьте это в контекст
         'patient_history': patient_history,
         'doctor': appointment.doctor
     }
     
+    # Исправьте путь к шаблону
     return render(request, 'core/patient_card.html', context)
+
+@login_required
+def create_medical_record(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    
+    if request.method == 'POST':
+        form = MedicalRecordForm(request.POST)
+        if form.is_valid():
+            medical_record = form.save(commit=False)
+            medical_record.appointment = appointment
+            medical_record.doctor = appointment.doctor
+            medical_record.save()
+            form.save_m2m()
+            
+            # Переадресация на список медицинских записей
+            return redirect('core/medical_records_list', appointment_id=appointment.id)
+    else:
+        form = MedicalRecordForm()
+    
+    return render(request, 'core/create_medical_record.html', {
+        'form': form,
+        'appointment': appointment
+    })
+
+
+@login_required
+def medical_records_list(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    medical_records = MedicalRecord.objects.filter(appointment=appointment).order_by('-created_at')
+    
+    context = {
+        'appointment': appointment,
+        'medical_records': medical_records
+    }
+    return render(request, 'core/medical_records_list.html', context)
