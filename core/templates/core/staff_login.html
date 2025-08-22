@@ -20,7 +20,7 @@
                 <div class="card-header bg-primary text-white text-center">
                     <h4 class="mb-0">
                         <i class="fas fa-user-tie me-2"></i>
-                        Адмиистратор
+                        Администратор
                     </h4>
                 </div>
                 <div class="card-body p-4">
@@ -56,7 +56,7 @@
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-sign-in-alt me-2"></i>
-                                Войти как адмиистратор
+                                Войти как администратор
                             </button>
                         </div>
                     </form>
@@ -116,68 +116,6 @@
                 </div>
                 <div class="card-footer bg-light text-center">
                     <small class="text-muted">Доступ к медицинским записям и расписанию</small>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Форма входа для пациентов -->
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card shadow h-100">
-                <div class="card-header bg-info text-white text-center">
-                    <h4 class="mb-0">
-                        <i class="fas fa-user-injured me-2"></i>
-                        Пациенты
-                    </h4>
-                </div>
-                <div class="card-body p-4">
-                    {% if messages and form_type == 'patient' %}
-                        {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                        {% endfor %}
-                    {% endif %}
-
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="form_type" value="patient">
-                        
-                        <div class="mb-3">
-                            <label for="patient_email" class="form-label">
-                                <i class="fas fa-envelope me-1"></i>Email
-                            </label>
-                            <input type="email" class="form-control" id="patient_email" name="email" 
-                                    placeholder="Введите ваш email" required>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="patient_password" class="form-label">
-                                <i class="fas fa-lock me-1"></i>Пароль
-                            </label>
-                            <input type="password" class="form-control" id="patient_password" name="password" 
-                                    placeholder="Введите ваш пароль" required>
-                        </div>
-                        
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
-                            <label class="form-check-label" for="remember_me">Запомнить меня</label>
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-info text-white">
-                                <i class="fas fa-sign-in-alt me-2"></i>
-                                Войти как пациент
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <div class="text-center mt-3">
-                        <a href="#" class="small">Забыли пароль?</a>
-                    </div>
-                </div>
-                <div class="card-footer bg-light text-center">
-                    <small class="text-muted">Доступ к записям и историям болезней</small>
                 </div>
             </div>
         </div>
