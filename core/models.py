@@ -53,6 +53,13 @@ class Doctor(models.Model):
         return check_password(raw_password, self.password)
     
 class Appointment(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Ожидает подтверждения'),
+        ('confirmed', 'Подтверждена'),
+        ('cancelled', 'Отменена'),
+        ('completed', 'Завершена'),
+    ]
+    
     name = models.CharField(max_length=100, verbose_name='Имя пациента')
     phone = models.CharField(max_length=20, verbose_name='Телефон')
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, verbose_name='Врач')
@@ -60,6 +67,13 @@ class Appointment(models.Model):
     message = models.TextField(blank=True, verbose_name='Сообщение')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания записи')
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, verbose_name='Пациент', null=True, blank=True)
+    # Добавьте это поле
+    status = models.CharField(
+        max_length=10, 
+        choices=STATUS_CHOICES, 
+        default='pending', 
+        verbose_name='Статус записи'
+    )
 
     class Meta:
         verbose_name = 'Запись на прием'
@@ -68,8 +82,6 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f'{self.name} - {self.doctor} ({self.date})'
-
-
 
 class Testimonial(models.Model):
     RATING_CHOICES = [

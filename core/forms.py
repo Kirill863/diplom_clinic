@@ -1,10 +1,10 @@
 import datetime
 from django import forms
-from .models import Doctor, MedicalRecord, Testimonial
+from .models import Appointment, Doctor, MedicalRecord, Testimonial
 from django.core.validators import RegexValidator
 
 
-class AppointmentForm(forms.Form):
+class AppointmentForm(forms.ModelForm):
     name = forms.CharField(
         label='Ваше имя',
         max_length=100,
@@ -55,6 +55,11 @@ class AppointmentForm(forms.Form):
             'placeholder': 'Сообщение (необязательно)'
         })
     )
+    
+    # ДОБАВЬТЕ ЭТОТ КЛАСС Meta:
+    class Meta:
+        model = Appointment  # Указываем модель
+        fields = ['name', 'phone', 'doctor', 'date', 'message']  # Указываем поля
 
 
 

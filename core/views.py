@@ -7,21 +7,16 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Doctor, Appointment
+from django.db.models import Q
 from .forms import MedicalRecordForm
+from django.utils import timezone
 
 def home(request):
     """Главная страница с услугами, врачами и отзывами"""
     # Получаем услуги
     services = Service.objects.all()
-    
-    # Получаем врачей
+    testimonials = Testimonial.objects.all()
     doctors = Doctor.objects.all()
-    
-    # Получаем одобренные отзывы
-    testimonials = Testimonial.objects.filter(
-        is_approved=True
-    ).order_by('-created_at')[:6]
     
     context = {
         'services': services,
@@ -35,14 +30,19 @@ def appointment_view(request):
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
-            appointment = Appointment(
-                name=form.cleaned_data['name'],
-                phone=form.cleaned_data['phone'],
-                doctor=form.cleaned_data['doctor'],
-                date=form.cleaned_data['date'],
-                message=form.cleaned_data['message']
-            )
-            appointment.save()
+            # Проверяем, нет ли дублирующей записи с Q-запросом
+            existing_appointment = Appointment.objects.filter(
+                Q(phone=form.cleaned_data['phone']) &
+                Q(doctor=form.cleaned_data['doctor']) &
+                Q(date=form.cleaned_data['date'])
+            ).exists()
+            
+            if existing_appointment:
+                messages.warning(request, 'У вас уже есть запись на это время к данному врачу.')
+                return render(request, 'core/appointment.html', {'form': form})
+            
+            # Сохраняем форму
+            appointment = form.save()
             messages.success(request, 'Ваша заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.')
             return redirect('appointment_success')
     else:
@@ -55,37 +55,63 @@ def appointment_success(request):
     return render(request, 'core/appointment_success.html')
 
 def add_testimonial(request):
-    """Отдельная страница для добавления отзыва"""
     if request.method == 'POST':
         form = TestimonialForm(request.POST)
         if form.is_valid():
+            # Проверяем, не оставлял ли пользователь уже отзыв для этого врача с таким же сообщением
+            name = form.cleaned_data['name']
+            doctor = form.cleaned_data['doctor']
+            message = form.cleaned_data['message']
+            
+            recent_testimonial = Testimonial.objects.filter(
+                name=name,
+                doctor=doctor,
+                message=message
+            ).exists()
+            
+            if recent_testimonial:
+                messages.error(request, 'Вы уже оставляли отзыв для этого врача с таким же сообщением.')
+                return redirect('testimonials')
+            
+            # Сохраняем форму (создает и сохраняет объект)
             testimonial = form.save(commit=False)
-            testimonial.is_approved = False  # Требует модерации
+            testimonial.is_approved = False  # если нужно модерацию
             testimonial.save()
             
-            messages.success(
-                request, 
-                'Спасибо за ваш отзыв! Он появится на сайте после проверки администратором.'
-            )
-            return redirect('add_testimonial')  # Исправлено: убрал 'core/'
+            messages.success(request, 'Ваш отзыв успешно отправлен и ожидает модерации.')
+            return redirect('home')
     else:
         form = TestimonialForm()
     
-    context = {
-        'form': form,
-    }
-    return render(request, 'core/add_testimonial.html', context)
+    return render(request, 'core/add_testimonial.html', {'form': form})
+
 
 def all_testimonials(request):
-    """Страница со всеми отзывами"""
-    testimonials = Testimonial.objects.filter(is_approved=True).order_by('-created_at')
+    """Страница со всеми отзывами с фильтрацией"""
+    rating_filter = request.GET.get('rating')
+    search_query = request.GET.get('search', '')
+    
+    testimonials = Testimonial.objects.filter(is_approved=True)
+    
+    # Применяем фильтрацию без Q-запросов
+    if rating_filter:
+        testimonials = testimonials.filter(rating=rating_filter)
+    
+    if search_query:
+        testimonials = testimonials.filter(
+            author_name__icontains=search_query
+        ) | testimonials.filter(
+            content__icontains=search_query
+        )
+    
+    testimonials = testimonials.order_by('-created_at')
     
     context = {
         'testimonials': testimonials,
+        'rating_filter': rating_filter,
+        'search_query': search_query,
     }
-    return render(request, 'core/all_testimonials.html', context)
-
-
+    return render(request, 'core/index.html', context)
 
 def staff_login(request):
     """Страница входа для персонала"""
@@ -99,7 +125,7 @@ def staff_login(request):
             if user is not None and user.is_staff:
                 login(request, user)
                 messages.success(request, f'Добро пожаловать, {username}!')
-                return redirect('admin:index')  # Перенаправляем в админку
+                return redirect('admin:index')
             else:
                 messages.error(request, 'Неверные учетные данные или недостаточно прав')
         else:
@@ -108,7 +134,6 @@ def staff_login(request):
         form = AuthenticationForm()
     
     return render(request, 'core/staff_login.html', {'form': form})
-
 
 def doctor_login(request):
     if request.method == 'POST':
@@ -119,8 +144,10 @@ def doctor_login(request):
             password = request.POST.get('password')
             
             try:
-                doctor = Doctor.objects.get(username=username)
-                if doctor.check_password(password):
+                # Убираем фильтр по is_active, так как этого поля нет
+                doctor = Doctor.objects.filter(username=username).first()
+                
+                if doctor and doctor.check_password(password):
                     request.session['doctor_id'] = doctor.id
                     request.session['doctor_name'] = doctor.name
                     return redirect('doctor_dashboard')
@@ -129,11 +156,10 @@ def doctor_login(request):
             except Doctor.DoesNotExist:
                 messages.error(request, 'Врач с таким логином не найден')
             
-            # Сохраняем в сессии тип формы для отображения сообщений
             request.session['form_type'] = 'doctor'
-            return redirect('core/staff_login')
+            return redirect('staff_login')
     
-    return redirect('core/staff_login')
+    return redirect('staff_login')
 
 @login_required
 def doctor_dashboard(request):
@@ -142,11 +168,39 @@ def doctor_dashboard(request):
         return redirect('doctor_login')
     
     doctor = get_object_or_404(Doctor, id=doctor_id)
-    appointments = Appointment.objects.filter(doctor=doctor).order_by('-created_at')
+    
+    # Добавляем фильтрацию через Q-запросы
+    status_filter = request.GET.get('status', 'all')
+    search_query = request.GET.get('search', '')
+    
+    base_query = Appointment.objects.filter(doctor=doctor)
+    
+    # Фильтрация по статусу с Q
+    if status_filter == 'confirmed':
+        base_query = base_query.filter(status='confirmed')
+    elif status_filter == 'pending':
+        base_query = base_query.filter(status='pending')
+    elif status_filter == 'cancelled':
+        base_query = base_query.filter(status='cancelled')
+    elif status_filter == 'completed':
+        base_query = base_query.filter(status='completed')
+    # Добавьте другие статусы, если они есть в вашей модели
+    
+    # Поиск с Q-запросом
+    if search_query:
+        base_query = base_query.filter(
+            Q(name__icontains=search_query) |
+            Q(phone__icontains=search_query) |
+            Q(message__icontains=search_query)
+        )
+    
+    appointments = base_query.order_by('-date', '-created_at')
     
     return render(request, 'core/doctor_dashboard.html', {
         'doctor': doctor,
-        'appointments': appointments
+        'appointments': appointments,
+        'status_filter': status_filter,
+        'search_query': search_query
     })
 
 def doctor_logout(request):
@@ -154,27 +208,27 @@ def doctor_logout(request):
         del request.session['doctor_id']
     if 'doctor_name' in request.session:
         del request.session['doctor_name']
-    return redirect('core/staff_login')
-
-
+    return redirect('staff_login')
 
 @login_required
 def patient_card(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
+    
+    # Получаем медицинские записи
     medical_records = MedicalRecord.objects.filter(appointment=appointment)
-        
+    
+    # История пациента
     patient_history = Appointment.objects.filter(
-        phone=appointment.phone
+        Q(phone=appointment.phone)
     ).order_by('-date')
     
     context = {
         'appointment': appointment,
-        'medical_records': medical_records,  # Добавьте это в контекст
+        'medical_records': medical_records,
         'patient_history': patient_history,
         'doctor': appointment.doctor
     }
     
-    # Исправьте путь к шаблону
     return render(request, 'core/patient_card.html', context)
 
 @login_required
@@ -184,13 +238,26 @@ def create_medical_record(request, appointment_id):
     if request.method == 'POST':
         form = MedicalRecordForm(request.POST)
         if form.is_valid():
+            # Проверяем, нет ли похожей записи с Q-запросом
+            similar_record = MedicalRecord.objects.filter(
+                Q(appointment=appointment) &
+                Q(diagnosis__icontains=form.cleaned_data['diagnosis']) &
+                Q(created_at__date=timezone.now().date())
+            ).exists()
+            
+            if similar_record:
+                messages.warning(request, 'Похожая медицинская запись уже существует сегодня.')
+                return render(request, 'core/create_medical_record.html', {
+                    'form': form,
+                    'appointment': appointment
+                })
+            
             medical_record = form.save(commit=False)
             medical_record.appointment = appointment
             medical_record.doctor = appointment.doctor
             medical_record.save()
             form.save_m2m()
             
-            # Переадресация на список медицинских записей
             return redirect('patient_card', appointment_id=appointment.id)
     else:
         form = MedicalRecordForm()
@@ -200,14 +267,17 @@ def create_medical_record(request, appointment_id):
         'appointment': appointment
     })
 
-
 @login_required
 def medical_records_list(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
-    medical_records = MedicalRecord.objects.filter(appointment=appointment).order_by('-created_at')
+    
+    # Фильтрация медицинских записей
+    medical_records = MedicalRecord.objects.filter(appointment=appointment)
+    
+    medical_records = medical_records.order_by('-created_at')
     
     context = {
         'appointment': appointment,
-        'medical_records': medical_records
+        'medical_records': medical_records,
     }
     return render(request, 'core/medical_records_list.html', context)

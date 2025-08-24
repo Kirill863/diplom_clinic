@@ -57,17 +57,6 @@
                         <h5 class="card-title">{{ doctor.name }}</h5>
                         <p class="text-muted">{{ doctor.specialization }}</p>
                         
-                        <!-- Проверка наличия стажа -->
-                        {% if doctor.experience > 0 %}
-                        <p class="card-text">Стаж работы: {{ doctor.experience }} 
-                            {% if doctor.experience == 1 %}год
-                            {% elif doctor.experience >= 2 and doctor.experience <= 4 %}года
-                            {% else %}лет
-                            {% endif %}
-                        </p>
-                        {% else %}
-                        <p class="card-text">Начинающий специалист</p>
-                        {% endif %}
                         
                         <!-- Описание врача -->
                         {% if doctor.description %}

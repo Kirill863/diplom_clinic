@@ -11,11 +11,46 @@
                 </a>
             </div>
             
+            <!-- ФОРМА ФИЛЬТРАЦИИ И ПОИСКА -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="status" class="form-label">Статус записи:</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Все</option>
+                                <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Подтвержденные</option>
+                                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Ожидающие</option>
+                                <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Отмененные</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="search" class="form-label">Поиск:</label>
+                            <input type="text" name="search" id="search" class="form-control" 
+                                   placeholder="Поиск по имени, телефону или сообщению" 
+                                   value="{{ search_query }}">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-filter"></i> Применить
+                            </button>
+                            <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Сбросить
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- КОНЕЦ ФОРМЫ -->
+            
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
                         <i class="fas fa-list me-2"></i>
                         Записи пациентов
+                        {% if search_query or status_filter != 'all' %}
+                        <small class="ms-2">(отфильтровано)</small>
+                        {% endif %}
                     </h5>
                 </div>
                 <div class="card-body">
@@ -28,6 +63,7 @@
                                     <th>Телефон</th>
                                     <th>Дата приема</th>
                                     <th>Дата записи</th>
+                                    <th>Статус</th>
                                     <th>Сообщение</th>
                                     <th>Действия</th>
                                 </tr>
@@ -39,7 +75,16 @@
                                     <td>{{ appointment.phone }}</td>
                                     <td>{{ appointment.date }}</td>
                                     <td>{{ appointment.created_at|date:"d.m.Y H:i" }}</td>
-                                    <td>{{ appointment.message|default:"-" }}</td>
+                                    <td>
+                                        {% if appointment.is_confirmed %}
+                                        <span class="badge bg-success">Подтверждено</span>
+                                        {% elif appointment.is_cancelled %}
+                                        <span class="badge bg-danger">Отменено</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Ожидание</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ appointment.message|default:"-"|truncatewords:5 }}</td>
                                     <td>
                                         <a href="{% url 'patient_card' appointment.id %}" 
                                             class="btn btn-sm btn-primary" 
@@ -55,7 +100,11 @@
                     {% else %}
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
+                        {% if search_query or status_filter != 'all' %}
+                        Нет записей, соответствующих фильтрам.
+                        {% else %}
                         Нет записей пациентов.
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>
